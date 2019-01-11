@@ -1,22 +1,21 @@
-resource "scaleway_server" "kafka_server" {
+resource "scaleway_server" "kafka_node" {
   count = 3
-  name = "kafka${count.index}"
+  name = "kafka-node${count.index}"
   image = "${lookup(var.SCALEWAY_IMAGE, var.SCALEWAY_REGION)}"
   type  = "START1-S"
-  tags = [ "kafka" ]
+  tags = [ "kafka-nodes", "kafka" ]
 }
 
-resource "scaleway_ip" "kafka_ip" {
-  server = "${scaleway_server.kafka_server.id}"
+resource "scaleway_server" "kafka_tools" {
+  name = "kafka-tools"
+  image = "${lookup(var.SCALEWAY_IMAGE, var.SCALEWAY_REGION)}"
+  type  = "START1-S"
+  tags = [ "kafka-tools", "kafka" ]
 }
 
-resource "scaleway_volume" "kafka_volume" {
-  name       = "kafka_vol"
-  size_in_gb = 50
-  type       = "l_ssd"
+
+resource "scaleway_ip" "kafka_node_ip" {
+  count = 3
+  server = "${element(scaleway_server.kafka_node.*.id,count.index)}"
 }
 
-resource "scaleway_volume_attachment" "kafka_vattach" {
-  server = "${scaleway_server.kafka_server.id}"
-  volume = "${scaleway_volume.kafka_volume.id}"
-}
