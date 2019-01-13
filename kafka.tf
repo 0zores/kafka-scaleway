@@ -13,9 +13,7 @@ resource "scaleway_server" "kafka_tools" {
   tags = [ "kafka-tools", "kafka" ]
 }
 
-
-resource "scaleway_ip" "kafka_node_ip" {
-  count = 3
-  server = "${element(scaleway_server.kafka_node.*.id,count.index)}"
+resource "scaleway_ip" "kafka_tools_ip" {
+  server = "${scaleway_server.kafka_tools.id}"
 }
 
